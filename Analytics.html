@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Hello World!</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <div class="analytics-container">
+    <header>Analytics</header>
+    <div class="summary">
+      <div class="stat-box">
+        <h3>Total Tasks</h3>
+        <p id="total-tasks">--</p>
+      </div>
+      <div class="stat-box">
+        <h3>Completed Tasks</h3>
+        <p id="completed-tasks">--</p>
+      </div>
+      <div class="stat-box">
+        <h3>Overdue Tasks</h3>
+        <p id="overdue-tasks">--</p>
+      </div>
+    </div>
+
+    <div class="charts-section">
+      <div class="chart-box">
+        <h2>Tasks Completed vs Remaining</h2>
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h2>Tasks by Priority</h2>
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="nav-item"> 
+    <a href="index.html"class="nav-button">Home</a>
+  </div>
+</body>
+
+</html>
