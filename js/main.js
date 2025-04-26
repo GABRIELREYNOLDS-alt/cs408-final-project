@@ -1,18 +1,27 @@
-window.onload = loaded;
+import { getTasks, saveTask, deleteTask } from "./awsClient.js";
 
-/**
- * Simple Function that will be run when the browser is finished loading.
- */
-function loaded() {
-    // Assign to a variable so we can set a breakpoint in the debugger!
-    const hello = sayHello();
-    console.log(hello);
+// Load and display tasks
+async function loadTasks() {
+  const tasks = await getTasks();
+  console.log(tasks);
+  // render to your table...
 }
 
-/**
- * This function returns the string 'hello'
- * @return {string} the string hello
- */
-export function sayHello() {
-    return 'hello';
+// Add new task
+async function handleAddTask() {
+  const task = {
+    id: crypto.randomUUID(),
+    title: "Finish assignment",
+    dueDate: "2025-05-01",
+    priority: "High",
+    status: "Incomplete",
+  };
+  await saveTask(task);
+  loadTasks();
+}
+
+// Delete a task
+async function handleDeleteTask(id) {
+  await deleteTask(id);
+  loadTasks();
 }

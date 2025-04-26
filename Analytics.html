@@ -3,10 +3,11 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Hello World!</title>
+  <title>Analytics - TaskTrackr</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -40,10 +41,90 @@
     </div>
   </div>
 
-
-  <div class="nav-item"> 
-    <a href="index.html"class="nav-button">Home</a>
+  <div class="nav-item">
+    <a href="index.html" class="nav-button">Home</a>
   </div>
+
+  <script>
+    const API_URL = "https://YOUR-ENDPOINT-HERE/items";
+
+    async function fetchTasks() {
+      const res = await fetch(API_URL);
+      const tasks = await res.json();
+      return tasks;
+    }
+
+    function isOverdue(task) {
+      if (!task.dueDate) return false;
+      const due = new Date(task.dueDate);
+      const now = new Date();
+      return due < now && task.status !== "Complete";
+    }
+
+    function countByPriority(tasks) {
+      const counts = { Low: 0, Medium: 0, High: 0 };
+      tasks.forEach(task => {
+        if (counts[task.priority]) {
+          counts[task.priority]++;
+        }
+      });
+      return counts;
+    }
+
+    async function loadAnalytics() {
+      const tasks = await fetchTasks();
+      const total = tasks.length;
+      const completed = tasks.filter(t => t.status === "Complete").length;
+      const overdue = tasks.filter(isOverdue).length;
+      const priorityCounts = countByPriority(tasks);
+
+      document.getElementById("total-tasks").textContent = total;
+      document.getElementById("completed-tasks").textContent = completed;
+      document.getElementById("overdue-tasks").textContent = overdue;
+
+      // Bar Chart: Complete vs Incomplete
+      new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+          labels: ["Complete", "Incomplete"],
+          datasets: [{
+            label: "Tasks",
+            data: [completed, total - completed],
+            backgroundColor: ["#4caf50", "#f44336"]
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+
+      // Pie Chart: Priority
+      new Chart(document.getElementById("pieChart"), {
+        type: "pie",
+        data: {
+          labels: ["Low", "Medium", "High"],
+          datasets: [{
+            label: "By Priority",
+            data: [priorityCounts.Low, priorityCounts.Medium, priorityCounts.High],
+            backgroundColor: ["#2196f3", "#ffc107", "#f44336"]
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+    }
+
+    loadAnalytics();
+  </script>
 </body>
 
 </html>

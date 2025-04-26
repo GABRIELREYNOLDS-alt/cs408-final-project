@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Hello World!</title>
+  <title>View Tasks - TaskTrackr</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
@@ -11,9 +11,9 @@
 
 <body>
   <header>View Tasks</header><br>
-  <div class="view-tasks-container">
 
-    <input type="text" class="search-bar" placeholder="Search by title, due date, or priority..." />
+  <div class="view-tasks-container">
+    <input type="text" id="searchBar" class="search-bar" placeholder="Search by title, due date, or priority..." />
 
     <table class="task-table">
       <thead>
@@ -26,31 +26,78 @@
           <th>Delete</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>Finish Final Project</td>
-          <td>2025-04-20</td>
-          <td>High</td>
-          <td>In Progress</td>
-          <td><button class="edit-btn">Edit</button></td>
-          <td><button class="delete-btn">Delete</button></td>
-        </tr>
-        <tr>
-          <td>Buy Groceries</td>
-          <td>2025-04-15</td>
-          <td>Low</td>
-          <td>Not Started</td>
-          <td><button class="edit-btn">Edit</button></td>
-          <td><button class="delete-btn">Delete</button></td>
-        </tr>
-        <!-- Add more tasks here -->
+      <tbody id="taskTableBody">
+        <!-- Tasks will be inserted here dynamically -->
       </tbody>
     </table>
   </div>
 
-  <div class="nav-item"> 
-      <a href="index.html"class="nav-button">Home</a>
-    </div> 
+  <div class="nav-item">
+    <a href="index.html" class="nav-button">Home</a>
+  </div>
+
+  <script>
+    const API_URL = "https://YOUR-ENDPOINT-HERE/items";
+
+    // Load tasks on page load
+    window.onload = loadTasks;
+
+    function loadTasks() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => {
+          const tableBody = document.getElementById("taskTableBody");
+          tableBody.innerHTML = "";
+          data.forEach(task => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${task.title}</td>
+              <td>${task.dueDate}</td>
+              <td>${task.priority}</td>
+              <td>${task.status}</td>
+              <td><button class="edit-btn" onclick="editTask('${task.id}')">Edit</button></td>
+              <td><button class="delete-btn" onclick="deleteTask('${task.id}', this)">Delete</button></td>
+            `;
+            tableBody.appendChild(row);
+          });
+        });
+    }
+
+    function deleteTask(id, button) {
+      fetch(`${API_URL}/${id}`, {
+        method: "DELETE"
+      }).then(() => {
+        const row = button.parentElement.parentElement;
+        row.remove();
+      });
+    }
+
+    function editTask(id) {
+      // Store the ID in localStorage to pre-fill the form in AddTasks.html
+      fetch(`${API_URL}/${id}`)
+        .then(res => res.json())
+        .then(task => {
+          localStorage.setItem("editTask", JSON.stringify(task));
+          window.location.href = "AddTasks.html";
+        });
+    }
+
+    // Optional: Search filtering
+    document.getElementById("searchBar").addEventListener("input", function () {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll("#taskTableBody tr");
+
+      rows.forEach(row => {
+        const [title, dueDate, priority] = row.querySelectorAll("td");
+        const matches = 
+          title.innerText.toLowerCase().includes(searchTerm) ||
+          dueDate.innerText.toLowerCase().includes(searchTerm) ||
+          priority.innerText.toLowerCase().includes(searchTerm);
+
+        row.style.display = matches ? "" : "none";
+      });
+    });
+  </script>
 </body>
 
 </html>

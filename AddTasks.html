@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Hello World!</title>
+  <title>Add Task - TaskTrackr</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
@@ -11,33 +11,64 @@
 
 <body>
   <header>Add Tasks</header><br>
-  <form class="add-task-form" action="#" method="post">
+  <form id="addTaskForm" class="add-task-form" action="#" method="post">
     <h2>Add a New Task</h2>
-  
+
+    <input type="hidden" id="taskId" />
+
     <label for="task-title">Task Title</label>
-    <input type="text" id="task-title" name="task-title" required>
-  
+    <input type="text" id="taskTitle" name="task-title" required>
+
     <label for="description">Description</label>
     <textarea id="description" name="description" rows="4" required></textarea>
-  
+
     <label for="due-date">Due Date</label>
-    <input type="date" id="due-date" name="due-date" required>
-  
+    <input type="date" id="dueDate" name="due-date" required>
+
     <label for="priority">Priority</label>
     <select id="priority" name="priority" required>
       <option value="">Select priority</option>
-      <option value="low">Low</option>
-      <option value="medium">Medium</option>
-      <option value="high">High</option>
+      <option value="Low">Low</option>
+      <option value="Medium">Medium</option>
+      <option value="High">High</option>
     </select>
-  
+
+    <label for="taskStatus">Mark Complete</label>
+    <input type="checkbox" id="taskStatus" />
+
     <button type="submit">Add Task</button>
   </form>
-  
-    <div class="nav-item"> 
-      <a href="index.html"class="nav-button">Home</a>
-    </div> 
-  
+
+  <div class="nav-item">
+    <a href="index.html" class="nav-button">Home</a>
+  </div>
+
+  <script>
+    document.getElementById("addTaskForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const id = document.getElementById("taskId").value || Date.now().toString();
+      const title = document.getElementById("taskTitle").value;
+      const description = document.getElementById("description").value;
+      const dueDate = document.getElementById("dueDate").value;
+      const priority = document.getElementById("priority").value;
+      const status = document.getElementById("taskStatus").checked ? "Complete" : "Incomplete";
+
+      const task = { id, title, description, dueDate, priority, status };
+
+      fetch("https://YOUR-ENDPOINT-HERE/items", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(task),
+      })
+        .then(res => res.json())
+        .then(() => {
+          alert("Task added!");
+          document.getElementById("addTaskForm").reset();
+        })
+        .catch(err => console.error("Error:", err));
+    });
+  </script>
 </body>
 
 </html>
