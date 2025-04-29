@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
@@ -37,67 +37,83 @@
   </div>
 
   <script>
-    const API_URL = "https://YOUR-ENDPOINT-HERE/items";
+    const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
 
     // Load tasks on page load
     window.onload = loadTasks;
 
-    function loadTasks() {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(data => {
-          const tableBody = document.getElementById("taskTableBody");
-          tableBody.innerHTML = "";
-          data.forEach(task => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-              <td>${task.title}</td>
-              <td>${task.dueDate}</td>
-              <td>${task.priority}</td>
-              <td>${task.status}</td>
-              <td><button class="edit-btn" onclick="editTask('${task.id}')">Edit</button></td>
-              <td><button class="delete-btn" onclick="deleteTask('${task.id}', this)">Delete</button></td>
-            `;
-            tableBody.appendChild(row);
-          });
+    async function loadTasks() {
+      try {
+        const response = await fetch(API_URL);
+        const tasks = await response.json();
+        const tableBody = document.getElementById("taskTableBody");
+        tableBody.innerHTML = "";
+
+        tasks.forEach(task => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${task.title}</td>
+            <td>${task.dueDate}</td>
+            <td>${task.priority}</td>
+            <td>${task.status}</td>
+            <td><button class="edit-btn" onclick="editTask('${task.id}')">Edit</button></td>
+            <td><button class="delete-btn" onclick="deleteTask('${task.id}', this)">Delete</button></td>
+          `;
+          tableBody.appendChild(row);
         });
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+      }
     }
 
-    function deleteTask(id, button) {
-      fetch(`${API_URL}/${id}`, {
-        method: "DELETE"
-      }).then(() => {
+    async function deleteTask(id, button) {
+      if (!confirm("Are you sure you want to delete this task?")) return;
+
+      try {
+        const response = await fetch(`${API_URL}/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to delete task");
+        }
+
         const row = button.parentElement.parentElement;
         row.remove();
-      });
+      } catch (error) {
+        console.error("Error deleting task:", error);
+        alert("Failed to delete the task.");
+      }
     }
 
-    function editTask(id) {
-      // Store the ID in localStorage to pre-fill the form in AddTasks.html
-      fetch(`${API_URL}/${id}`)
-        .then(res => res.json())
-        .then(task => {
-          localStorage.setItem("editTask", JSON.stringify(task));
-          window.location.href = "AddTasks.html";
-        });
+    async function editTask(id) {
+      try {
+        const response = await fetch(`${API_URL}/${id}`);
+        const task = await response.json();
+        localStorage.setItem("editTask", JSON.stringify(task));
+        window.location.href = "AddTasks.html";
+      } catch (error) {
+        console.error("Error loading task for edit:", error);
+      }
     }
 
-    // Optional: Search filtering
+    // Search filter
     document.getElementById("searchBar").addEventListener("input", function () {
       const searchTerm = this.value.toLowerCase();
       const rows = document.querySelectorAll("#taskTableBody tr");
 
       rows.forEach(row => {
-        const [title, dueDate, priority] = row.querySelectorAll("td");
-        const matches = 
-          title.innerText.toLowerCase().includes(searchTerm) ||
-          dueDate.innerText.toLowerCase().includes(searchTerm) ||
-          priority.innerText.toLowerCase().includes(searchTerm);
+        const [titleCell, dueDateCell, priorityCell] = row.querySelectorAll("td");
+        const matches =
+          titleCell.innerText.toLowerCase().includes(searchTerm) ||
+          dueDateCell.innerText.toLowerCase().includes(searchTerm) ||
+          priorityCell.innerText.toLowerCase().includes(searchTerm);
 
         row.style.display = matches ? "" : "none";
       });
     });
   </script>
+
 </body>
 
 </html>

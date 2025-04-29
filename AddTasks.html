@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
@@ -7,22 +7,24 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- (Optional for later) -->
 </head>
 
 <body>
   <header>Add Tasks</header><br>
+
   <form id="addTaskForm" class="add-task-form" action="#" method="post">
     <h2>Add a New Task</h2>
 
     <input type="hidden" id="taskId" />
 
-    <label for="task-title">Task Title</label>
+    <label for="taskTitle">Task Title</label>
     <input type="text" id="taskTitle" name="task-title" required>
 
     <label for="description">Description</label>
     <textarea id="description" name="description" rows="4" required></textarea>
 
-    <label for="due-date">Due Date</label>
+    <label for="dueDate">Due Date</label>
     <input type="date" id="dueDate" name="due-date" required>
 
     <label for="priority">Priority</label>
@@ -44,6 +46,9 @@
   </div>
 
   <script>
+    const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
+
+    // Handle form submission
     document.getElementById("addTaskForm").addEventListener("submit", function (event) {
       event.preventDefault();
 
@@ -56,18 +61,41 @@
 
       const task = { id, title, description, dueDate, priority, status };
 
-      fetch("https://YOUR-ENDPOINT-HERE/items", {
+      fetch(API_URL, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(task),
       })
-        .then(res => res.json())
-        .then(() => {
-          alert("Task added!");
-          document.getElementById("addTaskForm").reset();
-        })
-        .catch(err => console.error("Error:", err));
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to add task");
+        }
+        return response.json();
+      })
+      .then(() => {
+        alert("Task successfully added!");
+        document.getElementById("addTaskForm").reset();
+      })
+      .catch(error => {
+        console.error("Error adding task:", error);
+        alert("Something went wrong while adding the task.");
+      });
     });
+
+    // If editing an existing task, pre-fill the form
+    window.onload = function () {
+      const editTask = localStorage.getItem("editTask");
+      if (editTask) {
+        const task = JSON.parse(editTask);
+        document.getElementById("taskId").value = task.id;
+        document.getElementById("taskTitle").value = task.title;
+        document.getElementById("description").value = task.description;
+        document.getElementById("dueDate").value = task.dueDate;
+        document.getElementById("priority").value = task.priority;
+        document.getElementById("taskStatus").checked = task.status === "Complete";
+        localStorage.removeItem("editTask");
+      }
+    };
   </script>
 </body>
 

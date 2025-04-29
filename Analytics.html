@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
@@ -7,13 +7,14 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for graphs -->
 </head>
 
 <body>
 
   <div class="analytics-container">
     <header>Analytics</header>
+
     <div class="summary">
       <div class="stat-box">
         <h3>Total Tasks</h3>
@@ -46,85 +47,95 @@
   </div>
 
   <script>
-    const API_URL = "https://YOUR-ENDPOINT-HERE/items";
+    const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
 
     async function fetchTasks() {
-      const res = await fetch(API_URL);
-      const tasks = await res.json();
+      const response = await fetch(API_URL);
+      const tasks = await response.json();
       return tasks;
     }
 
     function isOverdue(task) {
       if (!task.dueDate) return false;
-      const due = new Date(task.dueDate);
-      const now = new Date();
-      return due < now && task.status !== "Complete";
+      const dueDate = new Date(task.dueDate);
+      const today = new Date();
+      return dueDate < today && task.status !== "Complete";
     }
 
-    function countByPriority(tasks) {
+    function countTasksByPriority(tasks) {
       const counts = { Low: 0, Medium: 0, High: 0 };
       tasks.forEach(task => {
-        if (counts[task.priority]) {
-          counts[task.priority]++;
-        }
+        if (!task.priority) return; // Skip tasks without priority
+
+        const normalizedPriority = task.priority.trim().toLowerCase();
+
+        if (normalizedPriority === "low") counts.Low++;
+        else if (normalizedPriority === "medium") counts.Medium++;
+        else if (normalizedPriority === "high") counts.High++;
+        // Otherwise ignore if weird value
       });
       return counts;
     }
 
     async function loadAnalytics() {
-      const tasks = await fetchTasks();
-      const total = tasks.length;
-      const completed = tasks.filter(t => t.status === "Complete").length;
-      const overdue = tasks.filter(isOverdue).length;
-      const priorityCounts = countByPriority(tasks);
+      try {
+        const tasks = await fetchTasks();
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.status === "Complete").length;
+        const overdue = tasks.filter(isOverdue).length;
+        const priorityCounts = countTasksByPriority(tasks);
 
-      document.getElementById("total-tasks").textContent = total;
-      document.getElementById("completed-tasks").textContent = completed;
-      document.getElementById("overdue-tasks").textContent = overdue;
+        // Set the text values
+        document.getElementById("total-tasks").textContent = total;
+        document.getElementById("completed-tasks").textContent = completed;
+        document.getElementById("overdue-tasks").textContent = overdue;
 
-      // Bar Chart: Complete vs Incomplete
-      new Chart(document.getElementById("barChart"), {
-        type: "bar",
-        data: {
-          labels: ["Complete", "Incomplete"],
-          datasets: [{
-            label: "Tasks",
-            data: [completed, total - completed],
-            backgroundColor: ["#4caf50", "#f44336"]
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1
+        // Bar chart: Completed vs Incomplete
+        new Chart(document.getElementById("barChart"), {
+          type: "bar",
+          data: {
+            labels: ["Complete", "Incomplete"],
+            datasets: [{
+              label: "Tasks",
+              data: [completed, total - completed],
+              backgroundColor: ["#4caf50", "#f44336"],
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
               }
             }
           }
-        }
-      });
+        });
 
-      // Pie Chart: Priority
-      new Chart(document.getElementById("pieChart"), {
-        type: "pie",
-        data: {
-          labels: ["Low", "Medium", "High"],
-          datasets: [{
-            label: "By Priority",
-            data: [priorityCounts.Low, priorityCounts.Medium, priorityCounts.High],
-            backgroundColor: ["#2196f3", "#ffc107", "#f44336"]
-          }]
-        },
-        options: {
-          responsive: true
-        }
-      });
+        // Pie chart: Tasks by Priority
+        new Chart(document.getElementById("pieChart"), {
+          type: "pie",
+          data: {
+            labels: ["Low", "Medium", "High"],
+            datasets: [{
+              label: "Priority",
+              data: [priorityCounts.Low, priorityCounts.Medium, priorityCounts.High],
+              backgroundColor: ["#2196f3", "#ffc107", "#f44336"],
+            }]
+          },
+          options: {
+            responsive: true
+          }
+        });
+
+      } catch (error) {
+        console.error("Error loading analytics:", error);
+      }
     }
 
-    loadAnalytics();
+    loadAnalytics(); // Call it when page loads
   </script>
+
 </body>
 
 </html>
