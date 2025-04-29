@@ -4,43 +4,46 @@
 <head>
   <meta charset="utf-8">
   <title>Analytics - TaskTrackr</title>
-  <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Visual analytics of your TaskTrackr progress">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+  <header>
+    Task Analytics
+  </header>
 
-  <div class="analytics-container">
-    <header>Analytics</header>
-
-    <div class="summary">
+  <main class="analytics-container">
+    <section class="summary" aria-labelledby="summaryTitle">
+      <h2 id="summaryTitle">Task Summary</h2>
       <div class="stat-box">
         <h3>Total Tasks</h3>
-        <p id="total-tasks">--</p>
+        <p id="total-tasks" aria-live="polite">--</p>
       </div>
       <div class="stat-box">
         <h3>Completed Tasks</h3>
-        <p id="completed-tasks">--</p>
+        <p id="completed-tasks" aria-live="polite">--</p>
       </div>
       <div class="stat-box">
         <h3>Overdue Tasks</h3>
-        <p id="overdue-tasks">--</p>
+        <p id="overdue-tasks" aria-live="polite">--</p>
       </div>
-    </div>
+    </section>
 
-    <div class="charts-section">
+    <section class="charts-section" aria-labelledby="chartsTitle">
+      <h2 id="chartsTitle">Charts</h2>
       <div class="chart-box">
-        <h2>Tasks Completed vs Remaining</h2>
-        <canvas id="barChart"></canvas>
+        <h3>Tasks Completed vs Remaining</h3>
+        <canvas id="barChart" aria-label="Bar chart of completed vs incomplete tasks" role="img"></canvas>
       </div>
       <div class="chart-box">
-        <h2>Tasks by Priority</h2>
-        <canvas id="pieChart"></canvas>
+        <h3>Tasks by Priority</h3>
+        <canvas id="pieChart" aria-label="Pie chart of task priorities" role="img"></canvas>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <div class="nav-item">
     <a href="index.html" class="nav-button">Home</a>
@@ -65,14 +68,13 @@
     function countTasksByPriority(tasks) {
       const counts = { Low: 0, Medium: 0, High: 0 };
       tasks.forEach(task => {
-        if (!task.priority) return; // Skip tasks without priority
+        if (!task.priority) return; 
 
         const normalizedPriority = task.priority.trim().toLowerCase();
 
         if (normalizedPriority === "low") counts.Low++;
         else if (normalizedPriority === "medium") counts.Medium++;
         else if (normalizedPriority === "high") counts.High++;
-        // Otherwise ignore if weird value
       });
       return counts;
     }
@@ -85,12 +87,10 @@
         const overdue = tasks.filter(isOverdue).length;
         const priorityCounts = countTasksByPriority(tasks);
 
-        // Set the text values
         document.getElementById("total-tasks").textContent = total;
         document.getElementById("completed-tasks").textContent = completed;
         document.getElementById("overdue-tasks").textContent = overdue;
 
-        // Bar chart: Completed vs Incomplete
         new Chart(document.getElementById("barChart"), {
           type: "bar",
           data: {
@@ -112,7 +112,6 @@
           }
         });
 
-        // Pie chart: Tasks by Priority
         new Chart(document.getElementById("pieChart"), {
           type: "pie",
           data: {
@@ -133,7 +132,7 @@
       }
     }
 
-    loadAnalytics(); // Call it when page loads
+    loadAnalytics();
   </script>
 
 </body>

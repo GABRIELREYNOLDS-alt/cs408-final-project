@@ -1,33 +1,41 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
-  <title>Hello World!</title>
-  <meta name="description" content="">
+  <title>TaskTrackr - Home</title>
+  <meta name="description" content="A simple, accessible TODO tracking app">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <header>TaskTrackr</header>
-  <img src="TaskTrackrLogo.jpg" alt="Logo" class="logo">
-  <div class="main-container">
-    <div class="button-container">
-      <div class="nav-item"> 
-        <a href="Analytics.html"class="nav-button">Analytics</a>
+  <header role="banner" aria-label="Main site header">
+    TaskTrackr
+  </header>
+
+  <img src="TaskTrackrLogo.jpg" alt="TaskTrackr logo" class="logo">
+
+  <main class="main-container" role="main">
+    <section class="button-container" aria-labelledby="navOptions">
+
+      <div class="nav-item">
+        <a href="Analytics.html" class="nav-button" role="button">Analytics</a>
         <p class="button-description">Learn more about added tasks</p>
       </div>
-      <div class="nav-item"> 
-      <a href="AddTasks.html"class="nav-button">Add Tasks</a>
-      <p class="button-description">Add tasks to TaskTrackr</p>
+
+      <div class="nav-item">
+        <a href="AddTasks.html" class="nav-button" role="button">Add Tasks</a>
+        <p class="button-description">Add tasks to TaskTrackr</p>
       </div>
-      <div class="nav-item"> 
-      <a href="ViewTasks.html"class="nav-button">View Tasks</a>
-      <p class="button-description">View and search tasks added to TaskTrackr</p>
-      </div> 
-    </div>
-  </div>
+
+      <div class="nav-item">
+        <a href="ViewTasks.html" class="nav-button" role="button">View Tasks</a>
+        <p class="button-description">View and search tasks added to TaskTrackr</p>
+      </div>
+
+    </section>
+  </main>
 </body>
 
 </html>

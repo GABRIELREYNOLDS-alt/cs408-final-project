@@ -4,42 +4,45 @@
 <head>
   <meta charset="utf-8">
   <title>View Tasks - TaskTrackr</title>
-  <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="View and manage tasks in TaskTrackr">
   <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-  <header>View Tasks</header><br>
+  <header>
+  View Tasks
+  </header>
 
-  <div class="view-tasks-container">
-    <input type="text" id="searchBar" class="search-bar" placeholder="Search by title, due date, or priority..." />
+  <main class="view-tasks-container">
+    <label for="searchBar">Search Tasks:</label>
+    <input type="text" id="searchBar" class="search-bar" placeholder="Search by title, due date, or priority" aria-label="Search tasks">
 
-    <table class="task-table">
+    <table class="task-table" aria-label="List of tasks">
+      <caption>Task List</caption>
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Due Date</th>
-          <th>Priority</th>
-          <th>Status</th>
-          <th>Edit</th>
-          <th>Delete</th>
+          <th scope="col">Title</th>
+          <th scope="col">Due Date</th>
+          <th scope="col">Priority</th>
+          <th scope="col">Status</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
         </tr>
       </thead>
       <tbody id="taskTableBody">
-        <!-- Tasks will be inserted here dynamically -->
       </tbody>
     </table>
-  </div>
+  </main>
 
   <div class="nav-item">
     <a href="index.html" class="nav-button">Home</a>
   </div>
 
+
   <script>
     const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
 
-    // Load tasks on page load
     window.onload = loadTasks;
 
     async function loadTasks() {
@@ -97,7 +100,6 @@
       }
     }
 
-    // Search filter
     document.getElementById("searchBar").addEventListener("input", function () {
       const searchTerm = this.value.toLowerCase();
       const rows = document.querySelectorAll("#taskTableBody tr");

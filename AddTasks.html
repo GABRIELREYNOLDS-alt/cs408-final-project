@@ -4,31 +4,32 @@
 <head>
   <meta charset="utf-8">
   <title>Add Task - TaskTrackr</title>
-  <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Add new tasks to TaskTrackr">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- (Optional for later) -->
 </head>
 
 <body>
-  <header>Add Tasks</header><br>
+  <header>
+    Add a Task
+  </header>
 
-  <form id="addTaskForm" class="add-task-form" action="#" method="post">
-    <h2>Add a New Task</h2>
+  <form id="addTaskForm" class="add-task-form" aria-labelledby="formTitle">
+    <h2 id="formTitle">Task Entry Form</h2>
 
-    <input type="hidden" id="taskId" />
+    <input type="hidden" id="taskId" name="taskId" />
 
     <label for="taskTitle">Task Title</label>
-    <input type="text" id="taskTitle" name="task-title" required>
+    <input type="text" id="taskTitle" name="taskTitle" required aria-required="true">
 
     <label for="description">Description</label>
-    <textarea id="description" name="description" rows="4" required></textarea>
+    <textarea id="description" name="description" rows="4" required aria-required="true"></textarea>
 
     <label for="dueDate">Due Date</label>
-    <input type="date" id="dueDate" name="due-date" required>
+    <input type="date" id="dueDate" name="dueDate" required aria-required="true">
 
     <label for="priority">Priority</label>
-    <select id="priority" name="priority" required>
+    <select id="priority" name="priority" required aria-required="true">
       <option value="">Select priority</option>
       <option value="Low">Low</option>
       <option value="Medium">Medium</option>
@@ -36,7 +37,7 @@
     </select>
 
     <label for="taskStatus">Mark Complete</label>
-    <input type="checkbox" id="taskStatus" />
+    <input type="checkbox" id="taskStatus" name="taskStatus" aria-label="Mark task as complete">
 
     <button type="submit">Add Task</button>
   </form>
@@ -48,7 +49,6 @@
   <script>
     const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
 
-    // Handle form submission
     document.getElementById("addTaskForm").addEventListener("submit", function (event) {
       event.preventDefault();
 
@@ -82,7 +82,6 @@
       });
     });
 
-    // If editing an existing task, pre-fill the form
     window.onload = function () {
       const editTask = localStorage.getItem("editTask");
       if (editTask) {
