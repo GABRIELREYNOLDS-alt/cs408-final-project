@@ -1,3 +1,7 @@
+<!-- 
+ @author Gabriel Reynolds
+ Description: This class handles adding and editing tasks
+ for TODO list -->
 <!doctype html>
 <html lang="en">
 
@@ -6,28 +10,38 @@
   <title>Add Task - TaskTrackr</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Add new tasks to TaskTrackr">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css"> <!-- External stylesheet for consistent UI -->
 </head>
 
 <body>
+  <!-- Fixed header banner -->
   <header>
     Add a Task
   </header>
 
+  <!-- Logo image with alt text for screen readers -->
+  <img src="TaskTrackrLogo.jpg" alt="TaskTrackr logo" class="logo">
+
+  <!-- Accessible form for adding or editing a task -->
   <form id="addTaskForm" class="add-task-form" aria-labelledby="formTitle">
     <h2 id="formTitle">Task Entry Form</h2>
 
+    <!-- Hidden ID field (used for editing tasks) -->
     <input type="hidden" id="taskId" name="taskId" />
 
+    <!-- Task title input -->
     <label for="taskTitle">Task Title</label>
     <input type="text" id="taskTitle" name="taskTitle" required aria-required="true">
 
+    <!-- Task description input -->
     <label for="description">Description</label>
     <textarea id="description" name="description" rows="4" required aria-required="true"></textarea>
 
+    <!-- Due date input -->
     <label for="dueDate">Due Date</label>
     <input type="date" id="dueDate" name="dueDate" required aria-required="true">
 
+    <!-- Priority selection -->
     <label for="priority">Priority</label>
     <select id="priority" name="priority" required aria-required="true">
       <option value="">Select priority</option>
@@ -36,22 +50,28 @@
       <option value="High">High</option>
     </select>
 
+    <!-- Completion checkbox -->
     <label for="taskStatus">Mark Complete</label>
     <input type="checkbox" id="taskStatus" name="taskStatus" aria-label="Mark task as complete">
 
+    <!-- Submit button -->
     <button type="submit">Add Task</button>
   </form>
 
+  <!-- Navigation back to home -->
   <div class="nav-item">
     <a href="index.html" class="nav-button">Home</a>
   </div>
 
   <script>
+    // AWS API Gateway endpoint for Lambda task handler
     const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
 
+    // Form submission handler
     document.getElementById("addTaskForm").addEventListener("submit", function (event) {
-      event.preventDefault();
+      event.preventDefault(); // Prevent default form behavior
 
+      // Gather form data
       const id = document.getElementById("taskId").value || Date.now().toString();
       const title = document.getElementById("taskTitle").value;
       const description = document.getElementById("description").value;
@@ -61,6 +81,7 @@
 
       const task = { id, title, description, dueDate, priority, status };
 
+      // Send PUT request to AWS Lambda via API Gateway
       fetch(API_URL, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -70,11 +91,11 @@
         if (!response.ok) {
           throw new Error("Failed to add task");
         }
-        return response.json();
+        return response.json(); // Not strictly needed unless response body is used
       })
       .then(() => {
         alert("Task successfully added!");
-        document.getElementById("addTaskForm").reset();
+        document.getElementById("addTaskForm").reset(); // Clear form
       })
       .catch(error => {
         console.error("Error adding task:", error);
@@ -82,6 +103,7 @@
       });
     });
 
+    // Prefill form if editing an existing task (loaded via localStorage)
     window.onload = function () {
       const editTask = localStorage.getItem("editTask");
       if (editTask) {
@@ -92,7 +114,7 @@
         document.getElementById("dueDate").value = task.dueDate;
         document.getElementById("priority").value = task.priority;
         document.getElementById("taskStatus").checked = task.status === "Complete";
-        localStorage.removeItem("editTask");
+        localStorage.removeItem("editTask"); // Clean up after use
       }
     };
   </script>

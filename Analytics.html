@@ -1,3 +1,7 @@
+<!-- 
+ @author Gabriel Reynolds
+ Description: This class handles analytics and data
+ tracking for TODO list -->
 <!doctype html>
 <html lang="en">
 
@@ -6,38 +10,57 @@
   <title>Analytics - TaskTrackr</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Visual analytics of your TaskTrackr progress">
-  <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css"> <!-- Link to custom styles -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for rendering graphs -->
 </head>
 
 <body>
+
+  <!-- Header for the page -->
   <header>
     Task Analytics
   </header>
 
+  <!-- Logo with alt text for screen readers -->
+  <img src="TaskTrackrLogo.jpg" alt="TaskTrackr logo" class="logo">
+
+  <!-- Main content area with two sections: summary and charts -->
   <main class="analytics-container">
+
+    <!-- Summary section for stats display -->
     <section class="summary" aria-labelledby="summaryTitle">
       <h2 id="summaryTitle">Task Summary</h2>
+
+      <!-- Total task count -->
       <div class="stat-box">
         <h3>Total Tasks</h3>
         <p id="total-tasks" aria-live="polite">--</p>
       </div>
+
+      <!-- Completed task count -->
       <div class="stat-box">
         <h3>Completed Tasks</h3>
         <p id="completed-tasks" aria-live="polite">--</p>
       </div>
+
+      <!-- Overdue task count -->
       <div class="stat-box">
         <h3>Overdue Tasks</h3>
         <p id="overdue-tasks" aria-live="polite">--</p>
       </div>
     </section>
 
+    <!-- Charts section for data visualization -->
     <section class="charts-section" aria-labelledby="chartsTitle">
       <h2 id="chartsTitle">Charts</h2>
+
+      <!-- Bar chart for completed vs remaining tasks -->
       <div class="chart-box">
         <h3>Tasks Completed vs Remaining</h3>
         <canvas id="barChart" aria-label="Bar chart of completed vs incomplete tasks" role="img"></canvas>
       </div>
+
+      <!-- Pie chart for priority breakdown -->
       <div class="chart-box">
         <h3>Tasks by Priority</h3>
         <canvas id="pieChart" aria-label="Pie chart of task priorities" role="img"></canvas>
@@ -45,18 +68,26 @@
     </section>
   </main>
 
+  <!-- Navigation back to home -->
   <div class="nav-item">
     <a href="index.html" class="nav-button">Home</a>
   </div>
 
   <script>
+    // === CONFIGURATION ===
+
+    // API endpoint for fetching tasks
     const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
+
+    // === FETCH TASK DATA FROM BACKEND ===
 
     async function fetchTasks() {
       const response = await fetch(API_URL);
       const tasks = await response.json();
       return tasks;
     }
+
+    // === HELPER FUNCTION: Check if a task is overdue ===
 
     function isOverdue(task) {
       if (!task.dueDate) return false;
@@ -65,32 +96,40 @@
       return dueDate < today && task.status !== "Complete";
     }
 
+    // === HELPER FUNCTION: Count tasks by normalized priority values ===
+
     function countTasksByPriority(tasks) {
       const counts = { Low: 0, Medium: 0, High: 0 };
       tasks.forEach(task => {
-        if (!task.priority) return; 
+        if (!task.priority) return;
 
-        const normalizedPriority = task.priority.trim().toLowerCase();
-
-        if (normalizedPriority === "low") counts.Low++;
-        else if (normalizedPriority === "medium") counts.Medium++;
-        else if (normalizedPriority === "high") counts.High++;
+        // Normalize spacing/casing
+        const normalized = task.priority.trim().toLowerCase();
+        if (normalized === "low") counts.Low++;
+        else if (normalized === "medium") counts.Medium++;
+        else if (normalized === "high") counts.High++;
       });
       return counts;
     }
 
+    // === MAIN FUNCTION: Load data and update the UI ===
+
     async function loadAnalytics() {
       try {
         const tasks = await fetchTasks();
+
+        // Summary counts
         const total = tasks.length;
         const completed = tasks.filter(t => t.status === "Complete").length;
         const overdue = tasks.filter(isOverdue).length;
         const priorityCounts = countTasksByPriority(tasks);
 
+        // Update DOM with numbers
         document.getElementById("total-tasks").textContent = total;
         document.getElementById("completed-tasks").textContent = completed;
         document.getElementById("overdue-tasks").textContent = overdue;
 
+        // === BAR CHART: Completed vs Incomplete ===
         new Chart(document.getElementById("barChart"), {
           type: "bar",
           data: {
@@ -98,7 +137,7 @@
             datasets: [{
               label: "Tasks",
               data: [completed, total - completed],
-              backgroundColor: ["#4caf50", "#f44336"],
+              backgroundColor: ["#4caf50", "#f44336"]
             }]
           },
           options: {
@@ -112,6 +151,7 @@
           }
         });
 
+        // === PIE CHART: Task Priorities ===
         new Chart(document.getElementById("pieChart"), {
           type: "pie",
           data: {
@@ -119,7 +159,7 @@
             datasets: [{
               label: "Priority",
               data: [priorityCounts.Low, priorityCounts.Medium, priorityCounts.High],
-              backgroundColor: ["#2196f3", "#ffc107", "#f44336"],
+              backgroundColor: ["#2196f3", "#ffc107", "#f44336"]
             }]
           },
           options: {
@@ -132,6 +172,7 @@
       }
     }
 
+    // === INIT: Load analytics when page is ready ===
     loadAnalytics();
   </script>
 

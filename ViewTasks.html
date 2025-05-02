@@ -1,3 +1,7 @@
+<!-- 
+ @author Gabriel Reynolds
+ Description: This class handles viewing and deleting
+ for TODO list -->
 <!doctype html>
 <html lang="en">
 
@@ -6,18 +10,33 @@
   <title>View Tasks - TaskTrackr</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="View and manage tasks in TaskTrackr">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css"> <!-- Link to main styling -->
 </head>
 
 <body>
+
+  <!-- Fixed header for page title -->
   <header>
-  View Tasks
+    View Tasks
   </header>
 
-  <main class="view-tasks-container">
-    <label for="searchBar">Search Tasks:</label>
-    <input type="text" id="searchBar" class="search-bar" placeholder="Search by title, due date, or priority" aria-label="Search tasks">
+  <!-- Brand/logo image -->
+  <img src="TaskTrackrLogo.jpg" alt="TaskTrackr logo" class="logo">
 
+  <!-- Main content wrapper for the task table and search -->
+  <main class="view-tasks-container">
+
+    <!-- Search field with proper label and aria for accessibility -->
+    <label for="searchBar">Search Tasks:</label>
+    <input
+      type="text"
+      id="searchBar"
+      class="search-bar"
+      placeholder="Search by title, due date, or priority"
+      aria-label="Search tasks"
+    >
+
+    <!-- Table displaying all loaded tasks -->
     <table class="task-table" aria-label="List of tasks">
       <caption>Task List</caption>
       <thead>
@@ -31,29 +50,35 @@
         </tr>
       </thead>
       <tbody id="taskTableBody">
+        <!-- Table rows will be dynamically injected here -->
       </tbody>
     </table>
   </main>
 
+  <!-- Navigation back to home page -->
   <div class="nav-item">
     <a href="index.html" class="nav-button">Home</a>
   </div>
 
-
   <script>
+    // API endpoint for accessing tasks
     const API_URL = "https://qavgfyfpy5.execute-api.us-east-2.amazonaws.com/Dev/items";
 
+    // Load tasks immediately after the page loads
     window.onload = loadTasks;
 
+    // Fetch tasks from AWS and display them in the table
     async function loadTasks() {
       try {
         const response = await fetch(API_URL);
         const tasks = await response.json();
         const tableBody = document.getElementById("taskTableBody");
-        tableBody.innerHTML = "";
+        tableBody.innerHTML = ""; // Clear any previous rows
 
         tasks.forEach(task => {
           const row = document.createElement("tr");
+
+          // Populate the row with task data and action buttons
           row.innerHTML = `
             <td>${task.title}</td>
             <td>${task.dueDate}</td>
@@ -64,31 +89,36 @@
           `;
           tableBody.appendChild(row);
         });
+
       } catch (error) {
         console.error("Error loading tasks:", error);
       }
     }
 
+    // Delete a task from DynamoDB and remove it from the table
     async function deleteTask(id, button) {
       if (!confirm("Are you sure you want to delete this task?")) return;
 
       try {
         const response = await fetch(`${API_URL}/${id}`, {
-          method: "DELETE",
+          method: "DELETE"
         });
 
         if (!response.ok) {
           throw new Error("Failed to delete task");
         }
 
+        // Remove the table row from the DOM
         const row = button.parentElement.parentElement;
         row.remove();
+
       } catch (error) {
         console.error("Error deleting task:", error);
         alert("Failed to delete the task.");
       }
     }
 
+    // Edit task by saving it to localStorage and redirecting to the add task page
     async function editTask(id) {
       try {
         const response = await fetch(`${API_URL}/${id}`);
@@ -100,6 +130,7 @@
       }
     }
 
+    // Filter tasks in real-time as the user types in the search bar
     document.getElementById("searchBar").addEventListener("input", function () {
       const searchTerm = this.value.toLowerCase();
       const rows = document.querySelectorAll("#taskTableBody tr");
@@ -111,7 +142,7 @@
           dueDateCell.innerText.toLowerCase().includes(searchTerm) ||
           priorityCell.innerText.toLowerCase().includes(searchTerm);
 
-        row.style.display = matches ? "" : "none";
+        row.style.display = matches ? "" : "none"; // Show/hide based on match
       });
     });
   </script>
